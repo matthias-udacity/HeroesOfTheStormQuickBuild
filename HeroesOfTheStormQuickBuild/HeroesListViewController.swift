@@ -20,6 +20,9 @@ class HeroesListViewController: UIViewController, UICollectionViewDataSource, UI
     @IBOutlet weak var heroesListCollectionView: UICollectionView!
 
     func updateHeroesList() {
+        // Update refresh control.
+        refreshControl.beginRefreshing()
+
         // Disable refresh button.
         refreshBarButtonItem.enabled = false
 
@@ -47,6 +50,9 @@ class HeroesListViewController: UIViewController, UICollectionViewDataSource, UI
 
                 // Enable refresh button.
                 self.refreshBarButtonItem.enabled = true
+
+                // Update refresh control.
+                self.refreshControl.endRefreshing()
             }
         }
 
@@ -55,6 +61,7 @@ class HeroesListViewController: UIViewController, UICollectionViewDataSource, UI
 
         // Start update task.
         updateHeroesListTask.resume()
+
     }
 
     // MARK: - UIViewController
@@ -62,6 +69,10 @@ class HeroesListViewController: UIViewController, UICollectionViewDataSource, UI
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+
+        // Add UIRefreshControl to heroesListCollectionView.
+        heroesListCollectionView.addSubview(refreshControl)
+        heroesListCollectionView.alwaysBounceVertical = true
 
         // Fetch heroes using NSFetchedResultsController.
         do {
@@ -88,6 +99,19 @@ class HeroesListViewController: UIViewController, UICollectionViewDataSource, UI
                 controller.hero = sender as! Hero
             }
         }
+    }
+
+    // MARK: - UIRefreshControl
+
+    lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(HeroesListViewController.refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
+
+        return refreshControl
+    }()
+
+    @objc private func refreshControlAction(refreshControl: UIRefreshControl) {
+        updateHeroesList()
     }
 
     // MARK: - UIAlertController

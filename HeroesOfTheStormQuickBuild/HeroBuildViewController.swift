@@ -20,6 +20,9 @@ class HeroBuildViewController: UIViewController, UITableViewDataSource, NSFetche
     @IBOutlet weak var heroBuildTableView: UITableView!
 
     func updateHeroBuild() {
+        // Update refresh control.
+        refreshControl.beginRefreshing()
+
         // Disable refresh button.
         refreshBarButtonItem.enabled = false
 
@@ -51,6 +54,9 @@ class HeroBuildViewController: UIViewController, UITableViewDataSource, NSFetche
 
                 // Enable refresh button.
                 self.refreshBarButtonItem.enabled = true
+
+                // Update refresh control.
+                self.refreshControl.endRefreshing()
             }
         }
 
@@ -74,6 +80,9 @@ class HeroBuildViewController: UIViewController, UITableViewDataSource, NSFetche
             title = "Build"
         }
 
+        // Add UIRefreshControl to heroBuildTableView.
+        heroBuildTableView.addSubview(refreshControl)
+
         // Fetch talents using NSFetchedResultsController.
         do {
             fetchedResultsController.delegate = self
@@ -86,6 +95,19 @@ class HeroBuildViewController: UIViewController, UITableViewDataSource, NSFetche
         if fetchedResultsController.fetchedObjects?.count == 0 {
             updateHeroBuild()
         }
+    }
+
+    // MARK: - UIRefreshControl
+
+    lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(HeroBuildViewController.refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
+
+        return refreshControl
+    }()
+
+    @objc private func refreshControlAction(refreshControl: UIRefreshControl) {
+        updateHeroBuild()
     }
 
     // MARK: - UIAlertController
